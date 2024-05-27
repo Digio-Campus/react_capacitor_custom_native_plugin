@@ -1,70 +1,27 @@
-# Getting Started with Create React App
+Este es un pequeño proyecto para ver cómo generar plugins nativos de android en un proyecto React con Capacitor. En este ejemplo vamos a ver cómo navegar a una vista nativa desde una híbrida con JavaScript y viceversa. 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. Primero ejecutamos "npx create-react-app react_capacitor_custom_native_plugin" para crear un proyecto React desde 0. Cabe destacar que este comando ya no se suele utilizar pero en nuestro caso, al tratarse de una prueba con fines de investigación, nos vale perfectamente.
 
-## Available Scripts
+2. Después ejecutamos "npm install @capacitor/core @capacitor/cli" en la carpeta generada por el anterior comando para añadir esas librerías.
 
-In the project directory, you can run:
+3. Instalamos la dependencia android con "npm install @capacitor/android", inicializamos Capacitor con "npx cap init", y añadimos la plataforma android con "npx cap add android". Finalmente construimos con "npm run build" y sincronizamos con "npx cap sync". 
 
-### `npm start`
+4. Debemos tener en cuenta que cada vez que hagamos cambios en el código tendremos que ejecutar después "npm run build", "npx cap sync" y "npx cap run android" para construir el proyecto, sincronizar con Capacitor y ejecutar en android.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+5. Una vez hecha la instalación, abrimos el proyecto con el IDE de nuestra elección. Yo estoy usando WebStorm para la parte JS y Android Studio para la parte de java.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+6. En Android Studio abrimos el directorio donde se encuentra MainActivity.java y creamos un nuevo fichero llamado CustomPlugin.java. La clase debe heredar de Plugin y debe tener la anotación @CapacitorPlugin(name = "CustomPlugin"). Los métodos que queramos poner en este plugin deben tener la anotación  @PluginMethod() y recibir por parámetros una PluginCall, que es la clase que envuelve la llamada de la capa web a la parte nativa.
 
-### `npm test`
+7. En el mismo directorio creamos un nuevo fichero llamado NativeViewActivity.java y en android/app/app/src/res/layout creamos activity_native_view.xml. En el fichero xml ponemos un botón y en NativeViewActivity le asignamos la función finish() al evento de clic para cerrar la activity.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+8. En CustomPlugin.java creamos un método "openNativeView" que genere un Intent para navegar a la activity NativeViewActivity.
 
-### `npm run build`
+9. En MainActivity sobreescribimos el método onCreate para registrar el plugin antes de hacer la llamada a super.onCreate().
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+10. A continuación nos vamos a la raíz del proyecto y de ahí a src/. Creamos un nuevo fichero llamado "PluginRegistration.js". Ahí importamos registerPlugin de @capacitor/core, registramos el plugin que hemos creado en CustomPlugin.java y lo exportamos.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+11. Ahora en App.js importamos el plugin desde "./PluginRegistration" y ya podemos usarlo para llamar a sus métodos. En nuestro caso hemos asociado la función "openNativeView()" a un evento en un botón que se mostrará en la pantalla principal al ejecutar la aplicación.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+12. Tras esto, vamos a AndroidManifest.xml y añadimos la nueva activity a la etiqueta aplication: "<activity android:name=".NativeViewActivity" />" 
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+13. Finalmente hacemos el build, sincronizamos, ejecutamos la aplicación en un dispositivo o emulador android y ya podemos navegar entre vistas React y vistas android nativas.
